@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Записи сообщества {{ group.title }}
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1>{{ group }}</h1>
+    <p>
+      {{ group.description|linebreaks }}
+    </p>
+    <article>
+      {% for post in page_obj %}
+        <ul>
+          <li>
+            <a href="{% url 'posts:profile' post.author.username %}"> {{ post.author.username }} </a>
+          </li>
+          <li>
+            Дата публикации: {{ post.pub_date|date:"d E Y" }}
+          </li>
+        </ul>
+        <p>
+          {{ post.text|linebreaks }}
+          <a href="{% url 'posts:post_detail' post.pk %}"> Детали поста </a>
+        </p>
+        {% if not forloop.last %}<hr>{% endif %}
+      {% endfor %}
+    </article>
+    {% include 'posts/includes/paginator.html' %}
+  </div>
+{% endblock %}
