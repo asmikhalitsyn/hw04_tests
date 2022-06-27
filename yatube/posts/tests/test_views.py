@@ -41,13 +41,19 @@ class PostPagesTests(TestCase):
                 kwargs={'slug': 'test-slug'}): 'posts/group_list.html',
             reverse(
                 'posts:profile',
-                kwargs={'username': PostPagesTests.post.author}): 'posts/profile.html',
+                kwargs={
+                    'username': PostPagesTests.post.author
+                }): 'posts/profile.html',
             reverse(
                 'posts:post_detail',
-                kwargs={'post_id': PostPagesTests.post.pk}): 'posts/post_detail.html',
+                kwargs={
+                    'post_id': PostPagesTests.post.pk
+                }): 'posts/post_detail.html',
             reverse(
                 'posts:post_edit',
-                kwargs={'post_id': PostPagesTests.post.pk}): 'posts/create_post.html',
+                kwargs={
+                    'post_id': PostPagesTests.post.pk
+                }): 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html',
         }
 
@@ -173,10 +179,12 @@ class PaginatorViewsTest(TestCase):
     def test_second_page_contains_four_posts(self):
         urls = {
             reverse('posts:index') + "?page=2": 'posts/index.html',
-            reverse('posts:group_list', kwargs={'slug': 'test-slug'}) + "?page=2":
-                'posts/group_list.html',
-            reverse('posts:profile', kwargs={'username': 'HasNoName'}) + "?page=2":
-                'posts/profile.html',
+            reverse(
+                'posts:group_list',
+                kwargs={'slug': 'test-slug'}) + "?page=2": 'posts/group_list.html',
+            reverse(
+                'posts:profile',
+                kwargs={'username': 'HasNoName'}) + "?page=2": 'posts/profile.html',
         }
         for url in urls.keys():
             with self.subTest(url=url):
