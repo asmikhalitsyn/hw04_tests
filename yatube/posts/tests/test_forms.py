@@ -1,4 +1,3 @@
-from ..forms import PostForm
 from ..models import Post, Group
 
 from django.contrib.auth import get_user_model
@@ -30,25 +29,23 @@ class TaskCreateFormTests(TestCase):
         self.authorized_client.force_login(self.user)
 
     def test_create_task(self):
-        # Подсчитаем количество записей в Task
         tasks_count = Post.objects.count()
         form_data = {
             'text': 'Текст12345',
             'group': self.group.id,
         }
-        response = self.authorized_client.post(
+        self.authorized_client.post(
             reverse('posts:post_create'),
             data=form_data
         )
         self.assertEqual(Post.objects.count(), tasks_count + 1)
 
     def test_edit_post(self):
-        form_data = {
-            'text': 'Новый пост',
-        }
-        response = self.authorized_client.post(
+        form_data = {'text': 'Новый пост'}
+        self.authorized_client.post(
             reverse(
-                'posts:post_edit', kwargs={'post_id': TaskCreateFormTests.post.pk}
+                'posts:post_edit',
+                kwargs={'post_id': TaskCreateFormTests.post.pk}
             ),
             data=form_data,
         )

@@ -36,10 +36,18 @@ class PostPagesTests(TestCase):
         """URL-адрес использует соответствующий шаблон."""
         templates_pages_names = {
             reverse('posts:index'): 'posts/index.html',
-            reverse('posts:group_list', kwargs={'slug': 'test-slug'}): 'posts/group_list.html',
-            reverse('posts:profile', kwargs={'username': PostPagesTests.post.author}): 'posts/profile.html',
-            reverse('posts:post_detail', kwargs={'post_id': PostPagesTests.post.pk}): 'posts/post_detail.html',
-            reverse('posts:post_edit', kwargs={'post_id': PostPagesTests.post.pk}): 'posts/create_post.html',
+            reverse(
+                'posts:group_list',
+                kwargs={'slug': 'test-slug'}): 'posts/group_list.html',
+            reverse(
+                'posts:profile',
+                kwargs={'username': PostPagesTests.post.author}): 'posts/profile.html',
+            reverse(
+                'posts:post_detail',
+                kwargs={'post_id': PostPagesTests.post.pk}): 'posts/post_detail.html',
+            reverse(
+                'posts:post_edit',
+                kwargs={'post_id': PostPagesTests.post.pk}): 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html',
         }
 
@@ -72,7 +80,9 @@ class PostPagesTests(TestCase):
     def test_profile_correct_context(self):
         """Шаблон profile сформирован с правильным контекстом"""
         username = PostPagesTests.post.author
-        response = self.authorized_client.get(reverse('posts:profile', kwargs={'username': username}))
+        response = self.authorized_client.get(
+            reverse('posts:profile', kwargs={'username': username})
+        )
         first_object = response.context['page_obj'][0]
         post_text_0 = first_object.text
         self.assertEqual(response.context['author'].username, 'HasNoName')
@@ -81,7 +91,9 @@ class PostPagesTests(TestCase):
     def test_post_detail_correct_context(self):
         """Шаблон post_detail сформирован с правильным контекстом"""
         post_id = PostPagesTests.post.pk
-        response = self.authorized_client.get(reverse('posts:post_detail', kwargs={'post_id': post_id}))
+        response = self.authorized_client.get(
+            reverse('posts:post_detail', kwargs={'post_id': post_id})
+        )
         post_detail_text = response.context.get('post').text
         self.assertEqual(post_detail_text, 'Тестовый пост')
 
@@ -96,7 +108,9 @@ class PostPagesTests(TestCase):
     def test_post_edit_correct_context(self):
         """Шаблон post_edit сформирован с правильным контекстом."""
         post_id = PostPagesTests.post.pk
-        response = self.authorized_client.get(reverse('posts:post_edit', kwargs={'post_id': post_id}))
+        response = self.authorized_client.get(
+            reverse('posts:post_edit', kwargs={'post_id': post_id})
+        )
         form_fields = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
@@ -144,8 +158,12 @@ class PaginatorViewsTest(TestCase):
     def test_first_page_contains_ten_posts(self):
         urls = {
             reverse('posts:index'): 'posts/index.html',
-            reverse('posts:group_list', kwargs={'slug': 'test-slug'}): 'posts/group_list.html',
-            reverse('posts:profile', kwargs={'username': 'HasNoName'}): 'posts/profile.html',
+            reverse(
+                'posts:group_list',
+                kwargs={'slug': 'test-slug'}): 'posts/group_list.html',
+            reverse(
+                'posts:profile',
+                kwargs={'username': 'HasNoName'}): 'posts/profile.html',
         }
         for url in urls.keys():
             with self.subTest(url=url):
