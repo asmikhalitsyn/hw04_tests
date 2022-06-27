@@ -181,10 +181,14 @@ class PaginatorViewsTest(TestCase):
             reverse('posts:index') + "?page=2": 'posts/index.html',
             reverse(
                 'posts:group_list',
-                kwargs={'slug': 'test-slug'}) + "?page=2": 'posts/group_list.html',
+                kwargs={
+                    'slug': 'test-slug'
+                }) + "?page=2": 'posts/group_list.html',
             reverse(
                 'posts:profile',
-                kwargs={'username': 'HasNoName'}) + "?page=2": 'posts/profile.html',
+                kwargs={
+                    'username': 'HasNoName'
+                }) + "?page=2": 'posts/profile.html',
         }
         for url in urls.keys():
             with self.subTest(url=url):
