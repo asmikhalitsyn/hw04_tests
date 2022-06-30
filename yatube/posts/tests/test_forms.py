@@ -1,10 +1,10 @@
-from ..models import Post, Group
+from ..models import Post, Group, User
 
-from django.contrib.auth import get_user_model
+from django import forms
 from django.test import Client, TestCase
 from django.urls import reverse
 
-User = get_user_model()
+URL_POST_CREATE = reverse('posts:post_create')
 
 
 class TaskCreateFormTests(TestCase):
@@ -21,10 +21,10 @@ class TaskCreateFormTests(TestCase):
             author=cls.user,
             text='Тестовый пост',
         )
+        cls.URL_POST_EDIT = reverse('posts:post_edit', args=[cls.post.pk])
 
     def setUp(self):
         self.guest_client = Client()
-        self.user = User.objects.get(username='test')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
@@ -34,22 +34,49 @@ class TaskCreateFormTests(TestCase):
             'text': 'Текст12345',
             'group': self.group.id,
         }
-        self.authorized_client.post(
-            reverse('posts:post_create'),
-            data=form_data
-        )
+        self.authorized_client.post(URL_POST_CREATE, data=form_data)
+        post = Post.objects.get(text='Текст12345')
+        author = User.objects.get(username='test')
+        group = Group.objects.get(title='Тестовая группа')
         self.assertEqual(Post.objects.count(), tasks_count + 1)
+        self.assertEqual(Post.objects.count() - tasks_count, 1)
+        self.assertEqual(post.text, 'Текст12345')
+        self.assertEqual(author.username, 'test')
+        self.assertEqual(group.title, 'Тестовая группа')
 
     def test_edit_post(self):
-        form_data = {'text': 'Новый пост'}
-        self.authorized_client.post(
-            reverse(
-                'posts:post_edit',
-                kwargs={'post_id': TaskCreateFormTests.post.pk}
-            ),
-            data=form_data,
-        )
-        post_edit = Post.objects.get(id=TaskCreateFormTests.post.pk)
-        self.assertEqual(
-            post_edit.text, 'Новый пост'
-        )
+        form_data = {
+            'text': 'Новый пост',
+            'group': self.group.id,
+        }
+        self.authorized_client.post(self.URL_POST_EDIT, data=form_data)
+        post = Post.objects.get(id=self.post.pk)
+        author = User.objects.get(username='test')
+        group = Group.objects.get(title='Тестовая группа')
+        self.assertEqual(post.text, form_data['text'])
+        self.assertEqual(author.username, 'test')
+        self.assertEqual(group.title, 'Тестовая группа')
+
+    def test_post_edit_correct_context(self):
+        """Шаблон post_edit сформирован с правильным контекстом."""
+        response = self.authorized_client.get(self.URL_POST_EDIT)
+        form_fields = {
+            'text': forms.fields.CharField,
+            'group': forms.fields.ChoiceField,
+        }
+        for value, expected in form_fields.items():
+            with self.subTest(value=value):
+                form_field = response.context.get('form').fields.get(value)
+                self.assertIsInstance(form_field, expected)
+
+    def test_post_create_correct_context(self):
+        """Шаблон post_create сформирован с правильным контекстом."""
+        response = self.authorized_client.get(URL_POST_CREATE)
+        form_fields = {
+            'text': forms.fields.CharField,
+            'group': forms.fields.ChoiceField,
+        }
+        for value, expected in form_fields.items():
+            with self.subTest(value=value):
+                form_field = response.context.get('form').fields.get(value)
+                self.assertIsInstance(form_field, expected)
