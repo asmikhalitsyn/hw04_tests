@@ -83,7 +83,8 @@ class PaginatorViewsTest(TestCase):
             slug='test-slug',
             description='Тестовое описание',
         )
-        cls.posts = [Post(
+        cls.posts = [
+            Post(
                 text=f'Тестовый пост {i}',
                 author=cls.user,
                 group=cls.group
