@@ -24,9 +24,18 @@ class PostPagesTests(TestCase):
             text='Тестовый пост',
             group=cls.group
         )
-        cls.URL_PROFILE = reverse('posts:profile', args=[cls.post.author.username])
-        cls.URL_POST_DETAIL = reverse('posts:post_detail', args=[cls.post.pk])
-        cls.EDIT_PAGE = reverse('posts:post_edit', args=[cls.post.pk])
+        cls.URL_PROFILE = reverse(
+            'posts:profile',
+            args=[cls.post.author.username]
+        )
+        cls.URL_POST_DETAIL = reverse(
+            'posts:post_detail',
+            args=[cls.post.pk]
+        )
+        cls.EDIT_PAGE = reverse(
+            'posts:post_edit',
+            args=[cls.post.pk]
+        )
 
     def setUp(self):
         self.URLS_LIST = [URL_INDEX, URL_GROUP_LIST, self.URL_PROFILE]
@@ -42,7 +51,10 @@ class PostPagesTests(TestCase):
                 post = response.context.get('page_obj')
                 if len(post) == 1:
                     self.assertEqual(post[0].text, self.post.text)
-                    self.assertEqual(post[0].author.username, self.post.author.username)
+                    self.assertEqual(
+                        post[0].author.username,
+                        self.post.author.username
+                    )
 
     def test_group_pages_correct_context(self):
         """Шаблон group_pages сформирован с правильным контекстом."""
@@ -97,7 +109,9 @@ class PaginatorViewsTest(TestCase):
         for url in self.urls.keys():
             with self.subTest(url=url):
                 response = self.client.get(url)
-                self.assertEqual(len(response.context.get('page_obj')), PAGE_COUNT)
+                self.assertEqual(
+                    len(response.context.get('page_obj')), PAGE_COUNT
+                )
 
     def test_second_page_contains_four_posts(self):
         for url in self.urls_second_page.keys():
@@ -105,5 +119,5 @@ class PaginatorViewsTest(TestCase):
                 response = self.client.get(url)
                 self.assertEqual(
                     len(response.context.get('page_obj')),
-                    len(self.posts)-PAGE_COUNT
+                    len(self.posts) - PAGE_COUNT
                 )

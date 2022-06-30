@@ -24,7 +24,10 @@ class PostURLTests(TestCase):
             author=cls.user,
             text='Тестовая пост',
         )
-        cls.URL_PROFILE = reverse('posts:profile', args=[cls.post.author.username])
+        cls.URL_PROFILE = reverse(
+            'posts:profile',
+            args=[cls.post.author.username]
+        )
         cls.URL_POST_DETAIL = reverse('posts:post_detail', args=[cls.post.pk])
         cls.EDIT_PAGE = reverse('posts:post_edit', args=[cls.post.pk])
 
@@ -35,8 +38,12 @@ class PostURLTests(TestCase):
             self.URL_PROFILE: 'posts/profile.html',
             self.URL_POST_DETAIL: 'posts/post_detail.html',
         }
-        self.templates_url_for_edit_page = {self.EDIT_PAGE: 'posts/create_post.html'}
-        self.templates_url_for_authorized = {URL_POST_CREATE: 'posts/create_post.html'}
+        self.templates_url_for_edit_page = {
+            self.EDIT_PAGE: 'posts/create_post.html'
+        }
+        self.templates_url_for_authorized = {
+            URL_POST_CREATE: 'posts/create_post.html'
+        }
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
@@ -75,4 +82,6 @@ class PostURLTests(TestCase):
     def test_create_url_redirect_for_edit(self):
         """Страница posts:post_edit перенаправляет анонимного пользователя."""
         response = self.guest_client.get(self.EDIT_PAGE, follow=True)
-        self.assertRedirects(response, f'/auth/login/?next=/posts/{self.post.pk}/edit/')
+        self.assertRedirects(
+            response, f'/auth/login/?next=/posts/{self.post.pk}/edit/'
+        )
