@@ -5,7 +5,7 @@ from ..models import Post, Group, User
 from ..settings import POSTS_PER_PAGE
 
 URL_OF_INDEX = reverse('posts:index')
-URL_OF_POSTS_OF_GROUP = reverse('posts:group_list', args=['test-slug'])
+URL_OF_POSTS_OF_GROUP = reverse('posts:group_list', args=['test_slug'])
 URL_TO_CREATE_POST = reverse('posts:post_create')
 URL_OF_PROFILE = reverse('posts:profile', args=['HasNoName'])
 COUNT_OF_POST = 15
@@ -17,8 +17,8 @@ class PostPagesTests(TestCase):
         super().setUpClass()
         cls.user = User.objects.create_user(username='HasNoName')
         cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='test-slug',
+            title='Test group',
+            slug='test_slug',
             description='Тестовое описание',
         )
         cls.post = Post.objects.create(
@@ -27,8 +27,8 @@ class PostPagesTests(TestCase):
             group=cls.group
         )
         cls.group_2 = Group.objects.create(
-            title='Тестовая группа2',
-            slug='test-slug2',
+            title='Test group_2',
+            slug='test_slug2',
             description='Тестовое описание2',
         )
         cls.URL_OF_DETAIL_POST = reverse(
@@ -95,8 +95,8 @@ class PaginatorViewsTest(TestCase):
         super().setUpClass()
         cls.user = User.objects.create_user(username='HasNoName')
         cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='test-slug',
+            title='Test group',
+            slug='test_slug',
             description='Тестовое описание',
         )
         Post.objects.bulk_create([Post(
@@ -122,6 +122,7 @@ class PaginatorViewsTest(TestCase):
         for url, post_count in self.urls.items():
             with self.subTest(url=url):
                 response = self.client.get(url)
+                print(type(response))
                 self.assertEqual(
                     len(response.context.get('page_obj')), post_count
                 )

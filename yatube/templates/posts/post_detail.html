@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  Пост {{ page_obj.text|slice:":30" }}
+  Пост {{ post.text|slice:":30" }}
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
         <li class="list-group-item">
           Дата публикации: {{ post.pub_date|date:"d E Y" }}
         </li>
-          {% if page_obj.group %}
+          {% if post.group %}
             <li class="list-group-item">
               Сообщество: {{ post.group }}
               <a href="{% url 'posts:group_list' post.group.slug %}"> все записи сообщества </a>
