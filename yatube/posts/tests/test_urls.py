@@ -27,7 +27,9 @@ class PostURLTests(TestCase):
             author=cls.user,
             text='Тестовая пост',
         )
-        cls.URL_FOR_REDIRECT_TO_EDIT_PAGE = f'/auth/login/?next=/posts/{cls.post.pk}/edit/'
+        cls.URL_FOR_REDIRECT_TO_EDIT_PAGE = (
+            f'/auth/login/?next=/posts/{cls.post.pk}/edit/'
+        )
         cls.URL_OF_DETAIL_POST = reverse('posts:post_detail', args=[cls.post.pk])
         cls.URL_TO_EDIT_POST = reverse('posts:post_edit', args=[cls.post.pk])
 
@@ -39,12 +41,18 @@ class PostURLTests(TestCase):
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
         self.response_to_template = {
-            self.guest_client.get(URL_OF_INDEX ): 'posts/index.html',
-            self.guest_client.get(URL_OF_POSTS_OF_GROUP): 'posts/group_list.html',
-            self.guest_client.get(URL_OF_PROFILE): 'posts/profile.html',
-            self.guest_client.get(self.URL_OF_DETAIL_POST): 'posts/post_detail.html',
-            self.authorized_client.get(self.URL_TO_EDIT_POST): 'posts/create_post.html',
-            self.authorized_client.get(URL_TO_CREATE_POST): 'posts/create_post.html',
+            self.guest_client.get(URL_OF_INDEX):
+                'posts/index.html',
+            self.guest_client.get(URL_OF_POSTS_OF_GROUP):
+                'posts/group_list.html',
+            self.guest_client.get(URL_OF_PROFILE):
+                'posts/profile.html',
+            self.guest_client.get(self.URL_OF_DETAIL_POST):
+                'posts/post_detail.html',
+            self.authorized_client.get(self.URL_TO_EDIT_POST):
+                'posts/create_post.html',
+            self.authorized_client.get(URL_TO_CREATE_POST):
+                'posts/create_post.html',
         }
         for response, template in self.response_to_template.items():
             with self.subTest(response=response):
@@ -52,7 +60,7 @@ class PostURLTests(TestCase):
 
     def test_status_of_pages(self):
         self.status_of_response = {
-            self.guest_client.get(URL_OF_INDEX ): HTTPStatus.OK,
+            self.guest_client.get(URL_OF_INDEX): HTTPStatus.OK,
             self.guest_client.get(URL_OF_POSTS_OF_GROUP): HTTPStatus.OK,
             self.guest_client.get(URL_OF_PROFILE): HTTPStatus.OK,
             self.guest_client.get(self.URL_OF_DETAIL_POST): HTTPStatus.OK,

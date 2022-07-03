@@ -21,7 +21,10 @@ class TaskCreateFormTests(TestCase):
             author=cls.user,
             text='Тестовый пост',
         )
-        cls.URL_OF_DETAIL_POST = reverse('posts:post_detail', args=[cls.post.pk])
+        cls.URL_OF_DETAIL_POST = reverse(
+            'posts:post_detail',
+            args=[cls.post.pk]
+        )
         cls.URL_TO_EDIT_POST = reverse('posts:post_edit', args=[cls.post.pk])
         cls.URL_OF_PROFILE = reverse(
             'posts:profile',
@@ -64,7 +67,8 @@ class TaskCreateFormTests(TestCase):
         self.assertRedirects(response, self.URL_OF_DETAIL_POST)
 
     def test_post_edit_correct_context(self):
-        """Шаблон post_edit и post_create  сформирован с правильным контекстом."""
+        """Шаблон post_edit и post_create
+          сформированы с правильными контекстами."""
         self.URLS_LIST = [self.URL_TO_EDIT_POST, URL_TO_CREATE_POST]
         form_fields = {
             'text': forms.fields.CharField,

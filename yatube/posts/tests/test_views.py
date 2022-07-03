@@ -31,7 +31,10 @@ class PostPagesTests(TestCase):
             slug='test-slug2',
             description='Тестовое описание2',
         )
-        cls.URL_OF_DETAIL_POST = reverse('posts:post_detail', args=[cls.post.pk])
+        cls.URL_OF_DETAIL_POST = reverse(
+            'posts:post_detail',
+            args=[cls.post.pk]
+        )
         cls.URL_TO_EDIT_POST = reverse('posts:post_edit', args=[cls.post.pk])
 
     def setUp(self):
@@ -59,17 +62,17 @@ class PostPagesTests(TestCase):
                         raise TypeError('Число постов на странице больше 1')
                 self.assertEqual(post.text, self.post.text)
                 self.assertEqual(
-                        post.author.username,
-                        self.post.author.username
-                    )
+                                post.author.username,
+                                self.post.author.username
+                            )
                 self.assertEqual(
-                    post.group.slug,
-                    self.post.group.slug
-                )
+                                post.group.slug,
+                                self.post.group.slug
+                             )
                 self.assertEqual(
-                    post.pk,
-                    self.post.pk
-                )
+                                post.pk,
+                                self.post.pk
+                            )
 
     def test_group_pages_correct_context(self):
         """Шаблон group_pages сформирован с правильным контекстом."""
@@ -103,25 +106,26 @@ class PaginatorViewsTest(TestCase):
             description='Тестовое описание',
         )
         Post.objects.bulk_create([Post(
-                text=f'Тестовый пост {number}',
-                author=cls.user,
-                group=cls.group
-            )
-            for number in range(COUNT_OF_POST) if COUNT_OF_POST > POSTS_PER_PAGE]
-        )
+                                text=f'Тестовый пост {number}',
+                                author=cls.user,
+                                group=cls.group
+                                )
+                                    for number in range(COUNT_OF_POST)
+                                    if COUNT_OF_POST > POSTS_PER_PAGE]
+                                )
 
     def setUp(self):
         self.guest_client = Client()
 
     def test_paginator(self):
         self.urls = {
-                URL_OF_INDEX: POSTS_PER_PAGE,
-                URL_OF_POSTS_OF_GROUP: POSTS_PER_PAGE,
-                URL_OF_PROFILE: POSTS_PER_PAGE,
-                URL_OF_INDEX + "?page=2": COUNT_OF_POST - POSTS_PER_PAGE,
-                URL_OF_POSTS_OF_GROUP + "?page=2": COUNT_OF_POST - POSTS_PER_PAGE,
-                URL_OF_PROFILE + "?page=2": COUNT_OF_POST - POSTS_PER_PAGE,
-        }
+                    URL_OF_INDEX: POSTS_PER_PAGE,
+                    URL_OF_POSTS_OF_GROUP: POSTS_PER_PAGE,
+                    URL_OF_PROFILE: POSTS_PER_PAGE,
+                    URL_OF_INDEX + "?page=2": COUNT_OF_POST - POSTS_PER_PAGE,
+                    URL_OF_POSTS_OF_GROUP + "?page=2": COUNT_OF_POST - POSTS_PER_PAGE,
+                    URL_OF_PROFILE + "?page=2": COUNT_OF_POST - POSTS_PER_PAGE,
+            }
         for url, post_count in self.urls.items():
             with self.subTest(url=url):
                 response = self.client.get(url)
