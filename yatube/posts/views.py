@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from .forms import PostForm
 from .models import Post, Group, User
-from .settings import PAGE_COUNT
+from .settings import POSTS_PER_PAGE
 
 
 def page_paginator(posts, count_pages, request):
@@ -14,7 +14,7 @@ def page_paginator(posts, count_pages, request):
 
 def index(request):
     return render(request, 'posts/index.html', {
-        'page_obj': page_paginator(Post.objects.all(), PAGE_COUNT, request)
+        'page_obj': page_paginator(Post.objects.all(), POSTS_PER_PAGE, request)
     })
 
 
@@ -22,7 +22,7 @@ def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     return render(request, 'posts/group_list.html', {
         'group': group,
-        'page_obj': page_paginator(group.posts.all(), PAGE_COUNT, request)
+        'page_obj': page_paginator(group.posts.all(), POSTS_PER_PAGE, request)
     })
 
 
@@ -31,13 +31,13 @@ def profile(request, username):
     return render(request, 'posts/profile.html', {
         'author': author,
         'page_obj': page_paginator(
-            author.posts.select_related('group'), PAGE_COUNT, request
+            author.posts.select_related('group'), POSTS_PER_PAGE, request
         )})
 
 
 def post_detail(request, post_id):
     return render(request, 'posts/post_detail.html', {
-        'page_obj': get_object_or_404(Post, pk=post_id)
+        'post': get_object_or_404(Post, pk=post_id)
     })
 
 

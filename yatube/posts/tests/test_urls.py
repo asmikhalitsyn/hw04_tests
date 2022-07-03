@@ -5,9 +5,12 @@ from django.urls import reverse
 
 from ..models import Post, Group, User
 
-URL_INDEX = reverse('posts:index')
-URL_GROUP_LIST = reverse('posts:group_list', args=['test-slug'])
-URL_POST_CREATE = reverse('posts:post_create')
+URL_OF_INDEX = reverse('posts:index')
+URL_OF_POSTS_OF_GROUP = reverse('posts:group_list', args=['test-slug'])
+URL_TO_CREATE_POST = reverse('posts:post_create')
+URL_OF_PROFILE = reverse('posts:profile', args=['HasNoName'])
+URL_OF_404_PAGE = '/unexisting_page/'
+URL_FOR_REDIRECT_TO_CREATE_PAGE = '/auth/login/?next=/create/'
 
 
 class PostURLTests(TestCase):
@@ -24,64 +27,50 @@ class PostURLTests(TestCase):
             author=cls.user,
             text='Тестовая пост',
         )
-        cls.URL_PROFILE = reverse(
-            'posts:profile',
-            args=[cls.post.author.username]
-        )
-        cls.URL_POST_DETAIL = reverse('posts:post_detail', args=[cls.post.pk])
-        cls.EDIT_PAGE = reverse('posts:post_edit', args=[cls.post.pk])
+        cls.URL_FOR_REDIRECT_TO_EDIT_PAGE = f'/auth/login/?next=/posts/{cls.post.pk}/edit/'
+        cls.URL_OF_DETAIL_POST = reverse('posts:post_detail', args=[cls.post.pk])
+        cls.URL_TO_EDIT_POST = reverse('posts:post_edit', args=[cls.post.pk])
 
     def setUp(self):
-        self.templates_url_for_all_users = {
-            URL_INDEX: 'posts/index.html',
-            URL_GROUP_LIST: 'posts/group_list.html',
-            self.URL_PROFILE: 'posts/profile.html',
-            self.URL_POST_DETAIL: 'posts/post_detail.html',
-        }
-        self.templates_url_for_edit_page = {
-            self.EDIT_PAGE: 'posts/create_post.html'
-        }
-        self.templates_url_for_authorized = {
-            URL_POST_CREATE: 'posts/create_post.html'
-        }
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
-        for address, template in self.templates_url_for_all_users.items():
-            with self.subTest(addresss=address):
-                response = self.guest_client.get(address)
+        self.response_to_template = {
+            self.guest_client.get(URL_OF_INDEX ): 'posts/index.html',
+            self.guest_client.get(URL_OF_POSTS_OF_GROUP): 'posts/group_list.html',
+            self.guest_client.get(URL_OF_PROFILE): 'posts/profile.html',
+            self.guest_client.get(self.URL_OF_DETAIL_POST): 'posts/post_detail.html',
+            self.authorized_client.get(self.URL_TO_EDIT_POST): 'posts/create_post.html',
+            self.authorized_client.get(URL_TO_CREATE_POST): 'posts/create_post.html',
+        }
+        for response, template in self.response_to_template.items():
+            with self.subTest(response=response):
                 self.assertTemplateUsed(response, template)
 
-    def test_unexisting_page(self):
-        response = self.guest_client.get('/unexisting_page/')
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+    def test_status_of_pages(self):
+        self.status_of_response = {
+            self.guest_client.get(URL_OF_INDEX ): HTTPStatus.OK,
+            self.guest_client.get(URL_OF_POSTS_OF_GROUP): HTTPStatus.OK,
+            self.guest_client.get(URL_OF_PROFILE): HTTPStatus.OK,
+            self.guest_client.get(self.URL_OF_DETAIL_POST): HTTPStatus.OK,
+            self.authorized_client.get(self.URL_TO_EDIT_POST): HTTPStatus.OK,
+            self.authorized_client.get(URL_TO_CREATE_POST): HTTPStatus.OK,
+            self.guest_client.get(URL_OF_404_PAGE): HTTPStatus.NOT_FOUND,
+        }
+        for response, status in self.status_of_response.items():
+            with self.subTest(response=response):
+                self.assertEqual(response.status_code, status)
 
-    def test_create_page_correct_template(self):
-        """URL-адрес использует соответствующий шаблон."""
-        for address, template in self.templates_url_for_authorized.items():
-            with self.subTest(addresss=address):
-                response = self.authorized_client.get(address)
-                self.assertTemplateUsed(response, template)
-
-    def test_edit_page_correct_template(self):
-        """URL-адрес использует соответствующий шаблон."""
-        for address, template in self.templates_url_for_edit_page.items():
-            with self.subTest(addresss=address):
-                if self.post.author.username == self.user:
-                    response = self.authorized_client.get(address)
-                    self.assertTemplateUsed(response, template)
-
-    def test_create_url_redirect_for_create(self):
-        """Страница /create/ перенаправляет анонимного пользователя."""
-        response = self.guest_client.get(URL_POST_CREATE, follow=True)
-        self.assertRedirects(response, '/auth/login/?next=/create/')
-
-    def test_create_url_redirect_for_edit(self):
-        """Страница posts:post_edit перенаправляет анонимного пользователя."""
-        response = self.guest_client.get(self.EDIT_PAGE, follow=True)
-        self.assertRedirects(
-            response, f'/auth/login/?next=/posts/{self.post.pk}/edit/'
-        )
+    def test_url_redirect(self):
+        """Страница перенаправляет анонимного пользователя."""
+        self.url_to_redirect = {
+            URL_TO_CREATE_POST: URL_FOR_REDIRECT_TO_CREATE_PAGE,
+            self.URL_TO_EDIT_POST: self.URL_FOR_REDIRECT_TO_EDIT_PAGE
+        }
+        for url, url_of_redirect in self.url_to_redirect.items():
+            with self.subTest(url=url):
+                response = self.guest_client.get(url, follow=True)
+                self.assertRedirects(response, url_of_redirect)

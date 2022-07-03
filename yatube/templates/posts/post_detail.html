@@ -9,33 +9,33 @@
     <aside class="col-12 col-md-3">
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
-          Дата публикации: {{ page_obj.pub_date|date:"d E Y" }}
+          Дата публикации: {{ post.pub_date|date:"d E Y" }}
         </li>
           {% if page_obj.group %}
             <li class="list-group-item">
-              Сообщество: {{ page_obj.group }}
-              <a href="{% url 'posts:group_list' page_obj.group.slug %}"> все записи сообщества </a>
+              Сообщество: {{ post.group }}
+              <a href="{% url 'posts:group_list' post.group.slug %}"> все записи сообщества </a>
             </li>
           {% endif %}
           <li class="list-group-item">
-            Автор: {{ page_obj.author.get_full_name }}
+            Автор: {{ post.author.get_full_name }}
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
-          Всего постов автора:  <span >{{ page_obj.author.posts.count }}</span>
+          Всего постов автора:  <span >{{ post.author.posts.count }}</span>
         </li>
         <li class="list-group-item">
-          <a href="{% url 'posts:profile' page_obj.author.username %}">
+          <a href="{% url 'posts:profile' post.author.username %}">
             все посты пользователя
           </a>
         </li>
         <li class="list-group-item">
-          <a href="{% url 'posts:post_edit' page_obj.pk %}"> Редактировать пост </a>
+          <a href="{% url 'posts:post_edit' post.pk %}"> Редактировать пост </a>
         </li>
       </ul>
     </aside>
     <article class="col-12 col-md-9">
       <p>
-       {{ page_obj.text|linebreaks }}
+       {{ post.text|linebreaks }}
       </p>
     </article>
   </div>
