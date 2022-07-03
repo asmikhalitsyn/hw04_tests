@@ -30,7 +30,10 @@ class PostURLTests(TestCase):
         cls.URL_FOR_REDIRECT_TO_EDIT_PAGE = (
             f'/auth/login/?next=/posts/{cls.post.pk}/edit/'
         )
-        cls.URL_OF_DETAIL_POST = reverse('posts:post_detail', args=[cls.post.pk])
+        cls.URL_OF_DETAIL_POST = reverse(
+            'posts:post_detail',
+            args=[cls.post.pk]
+        )
         cls.URL_TO_EDIT_POST = reverse('posts:post_edit', args=[cls.post.pk])
 
     def setUp(self):

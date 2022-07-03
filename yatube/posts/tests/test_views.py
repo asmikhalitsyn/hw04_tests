@@ -116,7 +116,8 @@ class PaginatorViewsTest(TestCase):
                      URL_OF_INDEX + "?page=2": COUNT_OF_POST - POSTS_PER_PAGE,
                      URL_OF_POSTS_OF_GROUP + "?page=2":
                          COUNT_OF_POST - POSTS_PER_PAGE,
-                     URL_OF_PROFILE + "?page=2": COUNT_OF_POST - POSTS_PER_PAGE}
+                     URL_OF_PROFILE + "?page=2":
+                         COUNT_OF_POST - POSTS_PER_PAGE}
 
         for url, post_count in self.urls.items():
             with self.subTest(url=url):
