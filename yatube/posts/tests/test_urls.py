@@ -86,7 +86,9 @@ class PostURLTests(TestCase):
                     [URL_TO_CREATE_POST,
                      urljoin(reverse('login'), '?next=/create/')],
                     [self.URL_TO_EDIT_POST,
-                     urljoin(reverse('login'), f'?next=/posts/{self.post.pk}/edit/')],
+                     urljoin(
+                         reverse('login'), f'?next=/posts/{self.post.pk}/edit/'
+                     )],
                 ],
             self.authorized_client.get: [
                 [self.URL_TO_EDIT_POST, self.URL_OF_DETAIL_POST]]
