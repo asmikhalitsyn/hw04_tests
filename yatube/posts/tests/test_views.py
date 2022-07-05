@@ -40,14 +40,12 @@ class PostPagesTests(TestCase):
 
     def test_pages_show_correct_context(self):
         """Шаблон сформирован с правильным контекстом."""
-        self.URLS_LIST = {
-             'page_obj': [
+        self.URLS_LIST = {'page_obj': [
                           URL_OF_INDEX,
                           URL_OF_POSTS_OF_GROUP,
-                          URL_OF_PROFILE
-                    ],
-             'post': [self.URL_OF_DETAIL_POST]
-        }
+                          URL_OF_PROFILE],
+                          'post': [self.URL_OF_DETAIL_POST
+                                   ]}
         for key, urls in self.URLS_LIST.items():
             with self.subTest(key=key):
                 for url in urls:
