@@ -1,26 +1,28 @@
-from http import HTTPStatus
-from urllib.parse import urljoin
-
 from django.test import TestCase, Client
 from django.urls import reverse
 
 from ..models import Post, Group, User
 
+SLUG_OF_GROUP = 'test-slug'
+USERNAME = 'TEST'
 URL_OF_INDEX = reverse('posts:index')
-URL_OF_POSTS_OF_GROUP = reverse('posts:group_list', args=['test-slug'])
+URL_OF_POSTS_OF_GROUP = reverse('posts:group_list', args=[SLUG_OF_GROUP])
 URL_TO_CREATE_POST = reverse('posts:post_create')
-URL_OF_PROFILE = reverse('posts:profile', args=['test'])
+URL_OF_PROFILE = reverse('posts:profile', args=[USERNAME])
 URL_OF_404_PAGE = '/unexisting_page/'
+URL_NEXT = '?next='
+LOGIN_URL = reverse('login')
+LOGIN_URL_CREATE = f'{LOGIN_URL}{URL_NEXT}{URL_TO_CREATE_POST}'
 
 
 class PostURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username='test')
+        cls.user = User.objects.create_user(username=USERNAME)
         cls.group = Group.objects.create(
             title='Test group',
-            slug='test-slug',
+            slug=SLUG_OF_GROUP,
             description='Тестовое описание',
         )
         cls.post = Post.objects.create(
@@ -32,71 +34,52 @@ class PostURLTests(TestCase):
             args=[cls.post.pk]
         )
         cls.URL_TO_EDIT_POST = reverse('posts:post_edit', args=[cls.post.pk])
+        cls.LOGIN_URL_EDIT = f'{LOGIN_URL}{URL_NEXT}{cls.URL_TO_EDIT_POST}'
 
     def setUp(self):
-        self.guest_client = Client()
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
+        self.guest = Client()
+        self.another = Client()
+        self.another.force_login(self.user)
 
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
-        self.client_to_data = {
-            self.guest_client.get:
-                [
-                    [URL_OF_INDEX, 'posts/index.html'],
-                    [URL_OF_POSTS_OF_GROUP, 'posts/group_list.html'],
-                    [URL_OF_PROFILE, 'posts/profile.html'],
-                    [self.URL_OF_DETAIL_POST, 'posts/post_detail.html']
-                ],
-            self.authorized_client.get: [
-                [self.URL_TO_EDIT_POST, 'posts/create_post.html'],
-                [URL_TO_CREATE_POST, 'posts/create_post.html']]
-        }
-
-        for client, value in self.client_to_data.items():
-            for url, template in value:
-                with self.subTest(url=url):
-                    self.assertTemplateUsed(client(url), template)
+        cases = [
+            [URL_OF_INDEX, self.guest, 'posts/index.html'],
+            [URL_OF_POSTS_OF_GROUP, self.guest, 'posts/group_list.html'],
+            [URL_OF_PROFILE, self.guest, 'posts/profile.html'],
+            [self.URL_OF_DETAIL_POST, self.guest, 'posts/post_detail.html'],
+            [self.URL_TO_EDIT_POST, self.another, 'posts/create_post.html'],
+            [URL_TO_CREATE_POST, self.another, 'posts/create_post.html']
+        ]
+        for url, client, template in cases:
+            with self.subTest(url=url):
+                self.assertTemplateUsed(client.get(url), template)
 
     def test_status_of_pages(self):
-        self.client_to_data = {
-            self.guest_client.get:
-                [
-                    [URL_OF_INDEX, HTTPStatus.OK],
-                    [URL_OF_POSTS_OF_GROUP, HTTPStatus.OK],
-                    [URL_OF_PROFILE, HTTPStatus.OK],
-                    [self.URL_OF_DETAIL_POST, HTTPStatus.OK],
-                    [URL_OF_404_PAGE, HTTPStatus.NOT_FOUND]
-                ],
-            self.authorized_client.get: [
-                [self.URL_TO_EDIT_POST, HTTPStatus.OK],
-                [URL_TO_CREATE_POST, HTTPStatus.OK]]
-        }
-        for client, value in self.client_to_data.items():
-            for url, status in value:
-                with self.subTest(url=url):
-                    self.assertEqual(client(url).status_code, status)
+        cases = [
+            [URL_OF_INDEX, self.guest, 200],
+            [URL_OF_POSTS_OF_GROUP, self.guest, 200],
+            [URL_OF_PROFILE, self.guest, 200],
+            [self.URL_OF_DETAIL_POST, self.guest, 200],
+            [URL_OF_404_PAGE, self.guest, 404],
+            [self.URL_TO_EDIT_POST, self.another, 200],
+            [URL_TO_CREATE_POST, self.another, 200]
+        ]
+        for url, client, status in cases:
+            with self.subTest(url=url):
+                self.assertEqual(client.get(url).status_code, status)
 
     def test_url_redirect(self):
         self.user = User.objects.create_user(username='test123')
-        self.authorized_client.force_login(self.user)
-        self.url_to_redirect = {
-            self.guest_client.get:
-                [
-                    [URL_TO_CREATE_POST,
-                     urljoin(reverse('login'), '?next=/create/')],
-                    [self.URL_TO_EDIT_POST,
-                     urljoin(
-                         reverse('login'), f'?next=/posts/{self.post.pk}/edit/'
-                     )],
-                ],
-            self.authorized_client.get: [
-                [self.URL_TO_EDIT_POST, self.URL_OF_DETAIL_POST]]
-        }
-        for client, value in self.url_to_redirect.items():
-            for url, url_redirect in value:
-                with self.subTest(url=url):
-                    self.assertRedirects(
-                        client(url, follow=True),
+        self.another.force_login(self.user)
+        cases = [
+            [URL_TO_CREATE_POST, self.guest, LOGIN_URL_CREATE],
+            [self.URL_TO_EDIT_POST, self.guest, self.LOGIN_URL_EDIT],
+        [self.URL_TO_EDIT_POST, self.another, self.URL_OF_DETAIL_POST],
+        ]
+        for url, client, url_redirect in cases:
+            with self.subTest(url=url):
+                self.assertRedirects(
+                        client.get(url, follow=True),
                         url_redirect
                     )
