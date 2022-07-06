@@ -71,7 +71,7 @@ class TaskCreateFormTests(TestCase):
                                           args=[new_post.id])
         form_data = {
             'text': 'Измененный пост',
-            'group': self.group2.id
+            'group': self.group_2.id
         }
         response_edit = self.authorized_client.post(
             self.URL_TO_EDIT_POST, data=form_data, follow=True
