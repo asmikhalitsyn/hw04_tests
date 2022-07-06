@@ -45,5 +45,3 @@ class PostURLTests(TestCase):
         for name_of_url, url in cases:
             with self.subTest(name_of_url=name_of_url):
                 self.assertEqual(name_of_url, url)
-
-

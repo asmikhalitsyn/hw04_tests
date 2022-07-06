@@ -75,11 +75,10 @@ class PostURLTests(TestCase):
         cases = [
             [URL_TO_CREATE_POST, self.guest, LOGIN_URL_CREATE],
             [self.URL_TO_EDIT_POST, self.guest, self.LOGIN_URL_EDIT],
-        [self.URL_TO_EDIT_POST, self.another, self.URL_OF_DETAIL_POST],
+            [self.URL_TO_EDIT_POST, self.another, self.URL_OF_DETAIL_POST],
         ]
         for url, client, url_redirect in cases:
             with self.subTest(url=url):
                 self.assertRedirects(
-                        client.get(url, follow=True),
-                        url_redirect
-                    )
+                    client.get(url, follow=True), url_redirect
+                )

@@ -67,7 +67,8 @@ class TaskCreateFormTests(TestCase):
         post_all_with_new_post = set(Post.objects.all())
         new_post = list(post_all_with_new_post.difference(post_all))[0]
         self.URL_TO_EDIT_POST = reverse('posts:post_edit', args=[new_post.id])
-        self.URL_OF_DETAIL_POST = reverse('posts:post_detail', args=[new_post.id])
+        self.URL_OF_DETAIL_POST = reverse('posts:post_detail',
+                                          args=[new_post.id])
         form_data = {
             'text': 'Измененный пост',
             'group': self.group2.id
