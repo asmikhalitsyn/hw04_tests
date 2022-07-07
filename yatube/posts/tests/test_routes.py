@@ -1,47 +1,28 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from ..models import Post, Group, User
-
 SLUG_OF_GROUP = 'test-slug'
 USERNAME = 'TEST'
-URL_OF_INDEX = reverse('posts:index')
-URL_OF_POSTS_OF_GROUP = reverse('posts:group_list', args=[SLUG_OF_GROUP])
-URL_TO_CREATE_POST = reverse('posts:post_create')
-URL_OF_PROFILE = reverse('posts:profile', args=[USERNAME])
-URL_OF_404_PAGE = '/unexisting_page/'
+POST_ID = 1
+NAME_OF_URL_OF_INDEX = 'index'
+NAME_OF_URL_OF_POSTS_OF_GROUP = 'group_list'
+NAME_URL_TO_CREATE_POST = 'post_create'
+NAME_URL_OF_PROFILE = 'profile'
 
 
-class PostURLTests(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.user = User.objects.create_user(username=USERNAME)
-        cls.group = Group.objects.create(
-            title='Test group',
-            slug=SLUG_OF_GROUP,
-            description='Тестовое описание',
-        )
-        cls.post = Post.objects.create(
-            author=cls.user,
-            text='Тестовая пост',
-        )
-        cls.URL_OF_DETAIL_POST = reverse(
-            'posts:post_detail',
-            args=[cls.post.pk]
-        )
-        cls.URL_TO_EDIT_POST = reverse('posts:post_edit', args=[cls.post.pk])
+class PostRoutesTests(TestCase):
 
-    def test_urls_uses_correct_template(self):
-        """URL-адрес использует соответствующий шаблон."""
+    def test_correct_routes(self):
+        self.NAME_OF_URL_OF_DETAIL_POST = 'post_detail'
+        self.NAME_OF_URL_TO_EDIT_POST = 'post_edit'
         cases = [
-            [URL_OF_INDEX, '/'],
-            [URL_OF_POSTS_OF_GROUP, f'/group/{SLUG_OF_GROUP}/'],
-            [URL_OF_PROFILE, f'/profile/{USERNAME}/'],
-            [self.URL_OF_DETAIL_POST, f'/posts/{self.post.id}/'],
-            [self.URL_TO_EDIT_POST, f'/posts/{self.post.id}/edit/'],
-            [URL_TO_CREATE_POST, '/create/']
+            [NAME_OF_URL_OF_INDEX, '/', None],
+            [NAME_OF_URL_OF_POSTS_OF_GROUP, f'/group/{SLUG_OF_GROUP}/', [SLUG_OF_GROUP]],
+            [NAME_URL_OF_PROFILE, f'/profile/{USERNAME}/', [USERNAME]],
+            [self.NAME_OF_URL_OF_DETAIL_POST, f'/posts/{POST_ID}/', [POST_ID]],
+            [self.NAME_OF_URL_TO_EDIT_POST, f'/posts/{POST_ID}/edit/', [POST_ID]],
+            [NAME_URL_TO_CREATE_POST, '/create/', None]
         ]
-        for name_of_url, url in cases:
-            with self.subTest(name_of_url=name_of_url):
-                self.assertEqual(name_of_url, url)
+        for name_of_route, route, args in cases:
+            with self.subTest(name_of_route=name_of_route):
+                self.assertEqual(reverse(f'posts:{name_of_route}', args=args), route)

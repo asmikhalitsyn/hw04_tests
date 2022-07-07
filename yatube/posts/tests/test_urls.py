@@ -5,6 +5,7 @@ from ..models import Post, Group, User
 
 SLUG_OF_GROUP = 'test-slug'
 USERNAME = 'TEST'
+USERNAME_2 = 'test123'
 URL_OF_INDEX = reverse('posts:index')
 URL_OF_POSTS_OF_GROUP = reverse('posts:group_list', args=[SLUG_OF_GROUP])
 URL_TO_CREATE_POST = reverse('posts:post_create')
@@ -20,6 +21,7 @@ class PostURLTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create_user(username=USERNAME)
+        cls.user_2 = User.objects.create_user(username=USERNAME_2)
         cls.group = Group.objects.create(
             title='Test group',
             slug=SLUG_OF_GROUP,
@@ -39,6 +41,8 @@ class PostURLTests(TestCase):
     def setUp(self):
         self.guest = Client()
         self.another = Client()
+        self.another_2 = Client()
+        self.another_2.force_login(self.user_2)
         self.another.force_login(self.user)
 
     def test_urls_uses_correct_template(self):
@@ -62,20 +66,18 @@ class PostURLTests(TestCase):
             [URL_OF_PROFILE, self.guest, 200],
             [self.URL_OF_DETAIL_POST, self.guest, 200],
             [URL_OF_404_PAGE, self.guest, 404],
-            [self.URL_TO_EDIT_POST, self.another, 200],
-            [URL_TO_CREATE_POST, self.another, 200]
+            [self.URL_TO_EDIT_POST, self.guest, 302],
+            [URL_TO_CREATE_POST, self.guest, 302]
         ]
         for url, client, status in cases:
             with self.subTest(url=url):
                 self.assertEqual(client.get(url).status_code, status)
 
     def test_url_redirect(self):
-        self.user = User.objects.create_user(username='test123')
-        self.another.force_login(self.user)
         cases = [
             [URL_TO_CREATE_POST, self.guest, LOGIN_URL_CREATE],
             [self.URL_TO_EDIT_POST, self.guest, self.LOGIN_URL_EDIT],
-            [self.URL_TO_EDIT_POST, self.another, self.URL_OF_DETAIL_POST],
+            [self.URL_TO_EDIT_POST, self.another_2, self.URL_OF_DETAIL_POST],
         ]
         for url, client, url_redirect in cases:
             with self.subTest(url=url):

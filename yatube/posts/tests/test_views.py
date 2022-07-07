@@ -19,6 +19,10 @@ class PostPagesTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create_user(username=USERNAME)
+        cls.group_2 = Group.objects.create(
+            title='Заголовок 2',
+            slug=SLUG_OF_GROUP_2
+        )
         cls.group = Group.objects.create(
             title='Заголовок 1',
             slug=SLUG_OF_GROUP
@@ -27,15 +31,6 @@ class PostPagesTests(TestCase):
             author=cls.user,
             text='Тестовая запись 1',
             group=cls.group
-        )
-        cls.group_2 = Group.objects.create(
-            title='Заголовок 2',
-            slug=SLUG_OF_GROUP_2
-        )
-        cls.post_2 = Post.objects.create(
-            author=cls.user,
-            text='Тестовая запись 2',
-            group=cls.group_2
         )
         cls.URL_OF_DETAIL_POST = reverse(
             'posts:post_detail',
@@ -60,22 +55,27 @@ class PostPagesTests(TestCase):
             with self.subTest(url=url):
                 response = self.guest_client.get(url)
                 obj = response.context.get(key)
-                if isinstance(obj, Post):
-                    self.assertEqual(self.post, obj)
+                if key == 'page_obj':
+                    self.assertEqual(len(obj), 1)
+                    post = obj[0]
                 else:
-                    self.assertIn(self.post, obj.object_list)
+                    post = obj
+                self.assertEqual(self.post.text, post.text)
+                self.assertEqual(self.post.author, post.author)
+                self.assertEqual(self.post.group, post.group)
 
     def test_group_pages_correct_context(self):
         """Шаблон group_pages сформирован с правильным контекстом."""
         response = self.authorized_client.get(URL_OF_POSTS_OF_GROUP)
         group = response.context['group']
-        self.assertEqual(group, self.group)
+        self.assertEqual(group.title, self.group.title)
+        self.assertEqual(group.slug, self.group.slug)
 
     def test_post_another_group(self):
         """Пост не попал в другую группу"""
         response = self.authorized_client.get(URL_OF_POSTS_OF_GROUP_2)
-        post = response.context['page_obj'][0]
-        self.assertNotEqual(self.post.text, post.text)
+        group = response.context['group']
+        self.assertNotEqual(self.post.group, group)
 
     def test_author_in_profile(self):
         response = self.guest_client.get(URL_OF_PROFILE)
@@ -103,7 +103,6 @@ class PaginatorViewsTest(TestCase):
         self.guest_client = Client()
 
     def test_paginator(self):
-        post_count = Post.objects.count()
         self.urls = {
             URL_OF_INDEX: POSTS_PER_PAGE,
             URL_OF_POSTS_OF_GROUP: POSTS_PER_PAGE,
