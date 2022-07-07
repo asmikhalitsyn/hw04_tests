@@ -68,7 +68,7 @@ class PostURLTests(TestCase):
             [URL_OF_404_PAGE, self.guest, 404],
             [self.URL_TO_EDIT_POST, self.guest, 302],
             [URL_TO_CREATE_POST, self.guest, 302],
-            [self.URL_TO_EDIT_POST, self.another_2, 305]
+            [self.URL_TO_EDIT_POST, self.another_2, 302]
         ]
         for url, client, status in cases:
             with self.subTest(case=[url, client, status]):
