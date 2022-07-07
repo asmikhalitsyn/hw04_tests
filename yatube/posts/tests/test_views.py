@@ -99,7 +99,7 @@ class PaginatorViewsTest(TestCase):
             text=f'Тестовый пост {number}',
             author=cls.user,
             group=cls.group)
-            for number in range(POSTS_PER_PAGE + 1))
+                                 for number in range(POSTS_PER_PAGE + 1))
 
     def setUp(self):
         self.guest_client = Client()
