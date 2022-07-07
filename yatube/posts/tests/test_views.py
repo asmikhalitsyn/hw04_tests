@@ -63,6 +63,7 @@ class PostPagesTests(TestCase):
                 self.assertEqual(self.post.text, post.text)
                 self.assertEqual(self.post.author, post.author)
                 self.assertEqual(self.post.group, post.group)
+                self.assertEqual(self.post.pk, post.pk)
 
     def test_group_pages_correct_context(self):
         """Шаблон group_pages сформирован с правильным контекстом."""
@@ -70,17 +71,18 @@ class PostPagesTests(TestCase):
         group = response.context['group']
         self.assertEqual(group.title, self.group.title)
         self.assertEqual(group.slug, self.group.slug)
+        self.assertEqual(group.pk, self.group.pk)
+        self.assertEqual(group.posts, self.group.posts)
 
     def test_post_another_group(self):
         """Пост не попал в другую группу"""
         response = self.authorized_client.get(URL_OF_POSTS_OF_GROUP_2)
-        group = response.context['group']
-        self.assertNotEqual(self.post.group, group)
+        post = response.context['page_obj']
+        self.assertNotIn(self.post, post)
 
     def test_author_in_profile(self):
         response = self.guest_client.get(URL_OF_PROFILE)
-        author_of_page = response.context['author']
-        self.assertEqual(self.user, author_of_page)
+        self.assertEqual(self.user, response.context['author'])
 
 
 class PaginatorViewsTest(TestCase):

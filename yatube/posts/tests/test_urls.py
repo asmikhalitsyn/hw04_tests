@@ -67,10 +67,11 @@ class PostURLTests(TestCase):
             [self.URL_OF_DETAIL_POST, self.guest, 200],
             [URL_OF_404_PAGE, self.guest, 404],
             [self.URL_TO_EDIT_POST, self.guest, 302],
-            [URL_TO_CREATE_POST, self.guest, 302]
+            [URL_TO_CREATE_POST, self.guest, 302],
+            [self.URL_TO_EDIT_POST, self.another_2, 305]
         ]
         for url, client, status in cases:
-            with self.subTest(url=url):
+            with self.subTest(case=[url, client, status]):
                 self.assertEqual(client.get(url).status_code, status)
 
     def test_url_redirect(self):
@@ -80,7 +81,7 @@ class PostURLTests(TestCase):
             [self.URL_TO_EDIT_POST, self.another_2, self.URL_OF_DETAIL_POST],
         ]
         for url, client, url_redirect in cases:
-            with self.subTest(url=url):
+            with self.subTest(url_redirect=url_redirect):
                 self.assertRedirects(
                     client.get(url, follow=True), url_redirect
                 )
